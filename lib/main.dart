@@ -41,16 +41,14 @@ class StringBufferWrapper with ChangeNotifier {
 class ShortFormatter extends LogRecordFormatter {
   @override
   StringBuffer formatToStringBuffer(LogRecord rec, StringBuffer sb) {
-    sb.write(
-        '${rec.time.hour}:${rec.time.minute}:${rec.time.second} ${rec.level.name} '
-            '${rec.message}');
+    sb.write('${rec.time.hour}:${rec.time.minute}:${rec.time.second} ${rec.level.name} '
+        '${rec.message}');
 
     if (rec.error != null) {
       sb.write(rec.error);
     }
     // ignore: avoid_as
-    final stackTrace = rec.stackTrace ??
-        (rec.error is Error ? (rec.error as Error).stackTrace : null);
+    final stackTrace = rec.stackTrace ?? (rec.error is Error ? (rec.error as Error).stackTrace : null);
     if (stackTrace != null) {
       sb.write(stackTrace);
     }
@@ -82,8 +80,7 @@ class _MyAppState extends State<MyApp> {
   BiometricStorageFile? _storage;
   BiometricStorageFile? _customPrompt;
 
-  final TextEditingController _writeController =
-  TextEditingController(text: 'Lorem Ipsum');
+  final TextEditingController _writeController = TextEditingController(text: 'Lorem Ipsum');
 
   @override
   void initState() {
@@ -122,28 +119,22 @@ class _MyAppState extends State<MyApp> {
                 _logger.finer('Initializing $baseName');
                 final authenticate = await _checkAuthenticate();
                 if (authenticate == CanAuthenticateResponse.unsupported) {
-                  _logger.severe(
-                      'Unable to use authenticate. Unable to get storage.');
+                  _logger.severe('Unable to use authenticate. Unable to get storage.');
                   return;
                 }
-                final supportsAuthenticated =
-                    authenticate == CanAuthenticateResponse.success ||
-                        authenticate == CanAuthenticateResponse.statusUnknown;
+                final supportsAuthenticated = authenticate == CanAuthenticateResponse.success ||
+                    authenticate == CanAuthenticateResponse.statusUnknown;
                 if (supportsAuthenticated) {
-                  _authStorage = await BiometricStorage().getStorage(
-                      '${baseName}_authenticated',
-                      options: StorageFileInitOptions());
+                  _authStorage = await BiometricStorage()
+                      .getStorage('${baseName}_authenticated', options: StorageFileInitOptions());
                 }
-                _storage = await BiometricStorage()
-                    .getStorage('${baseName}_unauthenticated',
+                _storage = await BiometricStorage().getStorage('${baseName}_unauthenticated',
                     options: StorageFileInitOptions(
                       authenticationRequired: false,
                     ));
                 if (supportsAuthenticated) {
-                  _customPrompt = await BiometricStorage().getStorage(
-                      '${baseName}_customPrompt',
-                      options: StorageFileInitOptions(
-                          authenticationValidityDurationSeconds: 10),
+                  _customPrompt = await BiometricStorage().getStorage('${baseName}_customPrompt',
+                      options: StorageFileInitOptions(authenticationValidityDurationSeconds: 10),
                       promptInfo: const PromptInfo(
                         iosPromptInfo: IosPromptInfo(
                           saveTitle: 'Custom save title',
@@ -165,33 +156,24 @@ class _MyAppState extends State<MyApp> {
             ...(_authStorage == null
                 ? []
                 : [
-              const Text('Biometric Authentication',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              StorageActions(
-                  storageFile: _authStorage!,
-                  writeController: _writeController),
-              const Divider(),
-            ]),
+                    const Text('Biometric Authentication', style: TextStyle(fontWeight: FontWeight.bold)),
+                    StorageActions(storageFile: _authStorage!, writeController: _writeController),
+                    const Divider(),
+                  ]),
             ...?(_storage == null
                 ? null
                 : [
-              const Text('Unauthenticated',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              StorageActions(
-                  storageFile: _storage!,
-                  writeController: _writeController),
-              const Divider(),
-            ]),
+                    const Text('Unauthenticated', style: TextStyle(fontWeight: FontWeight.bold)),
+                    StorageActions(storageFile: _storage!, writeController: _writeController),
+                    const Divider(),
+                  ]),
             ...?(_customPrompt == null
                 ? null
                 : [
-              const Text('Custom Prompts w/ 10s auth validity',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              StorageActions(
-                  storageFile: _customPrompt!,
-                  writeController: _writeController),
-              const Divider(),
-            ]),
+                    const Text('Custom Prompts w/ 10s auth validity', style: TextStyle(fontWeight: FontWeight.bold)),
+                    StorageActions(storageFile: _customPrompt!, writeController: _writeController),
+                    const Divider(),
+                  ]),
             const Divider(),
             TextField(
               decoration: const InputDecoration(
@@ -223,26 +205,23 @@ class _MyAppState extends State<MyApp> {
   List<Widget>? _appArmorButton() => kIsWeb || !Platform.isLinux
       ? null
       : [
-    ElevatedButton(
-      child: const Text('Check App Armor'),
-      onPressed: () async {
-        if (await BiometricStorage().linuxCheckAppArmorError()) {
-          _logger.info('Got an error! User has to authorize us to '
-              'use secret service.');
-          _logger.info(
-              'Run: `snap connect biometric-storage-example:password-manager-service`');
-        } else {
-          _logger.info('all good.');
-        }
-      },
-    )
-  ];
+          ElevatedButton(
+            child: const Text('Check App Armor'),
+            onPressed: () async {
+              if (await BiometricStorage().linuxCheckAppArmorError()) {
+                _logger.info('Got an error! User has to authorize us to '
+                    'use secret service.');
+                _logger.info('Run: `snap connect biometric-storage-example:password-manager-service`');
+              } else {
+                _logger.info('all good.');
+              }
+            },
+          )
+        ];
 }
 
 class StorageActions extends StatelessWidget {
-  const StorageActions(
-      {Key? key, required this.storageFile, required this.writeController})
-      : super(key: key);
+  const StorageActions({Key? key, required this.storageFile, required this.writeController}) : super(key: key);
 
   final BiometricStorageFile storageFile;
   final TextEditingController writeController;
@@ -273,8 +252,7 @@ class StorageActions extends StatelessWidget {
           onPressed: () async {
             _logger.fine('Going to write...');
             try {
-              await storageFile
-                  .write(' [${DateTime.now()}] ${writeController.text}');
+              await storageFile.write(' [${DateTime.now()}] ${writeController.text}');
               _logger.info('Written content.');
             } on AuthException catch (e) {
               if (e.code == AuthExceptionCode.userCanceled) {
