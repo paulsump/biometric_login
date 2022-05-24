@@ -16,7 +16,7 @@ void main() {
   logMessages.attachToLogger(Logger.root);
   _logger.fine('Application launched. (v2)');
   _setTargetPlatformForDesktop();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 /// If the current platform is desktop, override the default platform to
@@ -70,6 +70,8 @@ class MemoryAppender extends BaseLogAppender {
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   _MyAppState createState() => _MyAppState();
 }
